@@ -1,0 +1,10 @@
+logfile: keycloak_to_azure.log
+keycloak_url: https://auth.example.com/auth
+keycloak_realm: acme
+groups:
+  - keycloak: group1
+    azure: acme-group-1
+  - keycloak: group2
+    azure: acme-group-2
+  - keycloak: group3
+    azure: acme-group-3

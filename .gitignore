@@ -1,0 +1,11 @@
+# script config and log
+keycloak_to_azure.config.yaml
+keycloak_to_azure.config.yaml.prod
+keycloak_to_azure.config.yaml.test
+keycloak_to_azure.log
+
+# misc dev
+shell.nix
+.envrc
+.venv
+_build
