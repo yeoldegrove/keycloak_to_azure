@@ -44,6 +44,7 @@ import path
 CONFIGFILE = "keycloak_to_azure.config.yaml"
 CONFIG_SCHEMA = strictyaml.Map({
     "logfile": strictyaml.Str(),
+    "email_domain": strictyaml.Str(),
     "keycloak_url": strictyaml.Str(),
     "keycloak_realm": strictyaml.Str(),
     "groups": strictyaml.Seq(strictyaml.Map({
@@ -290,8 +291,10 @@ def main():
         # get keycloak group members
         keycloak_group_members = keycloak_admin.get_group_members(
             keycloak_group_id)
+        # change email address to custom email domain (used for our azure ad
+        # federated accounts)
         keycloak_group_members_emails = [
-            sub["email"]
+            sub["email"].split("@")[0] + "@" + config['email_domain']
             for sub in keycloak_group_members
         ]
 
@@ -312,6 +315,11 @@ def main():
                 keycloak_group_member_firstname + " " + keycloak_group_member_lastname
             )
             keycloak_group_member_email = keycloak_group_member["email"]
+            # change email address to custom email domain (used for our azure
+            # ad federated accounts)
+            keycloak_group_member_email = (
+                keycloak_group_member_email.split("@")[0] + "@" + config['email_domain']
+            )
 
             # invite user
             if keycloak_group_member_email not in azure_all_user_emails:
@@ -389,12 +397,16 @@ def main():
                     azure_user_entry["email"]
                     and azure_user_entry["email"] not in keycloak_group_members_emails
                 ):
-                    groupremove_user(azure_user_entry["id"], azure_group_id)
-                    # make sure cache is up to date
-                    azure_group_member_ids_current = get_azure_group_members(
-                        azure_group_id
-                    )
-                    break
+                    # double check to only remove members from custom domain
+                    if (azure_user_entry['email'].split('@')[1] ==
+                    config['email_domain']
+                    ):
+                        groupremove_user(azure_user_entry["id"], azure_group_id)
+                        # make sure cache is up to date
+                        azure_group_member_ids_current = get_azure_group_members(
+                            azure_group_id
+                        )
+                        break
 
     logging.info("end run")
 

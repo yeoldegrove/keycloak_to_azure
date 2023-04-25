@@ -59,6 +59,7 @@ Example configuration file:
 ```
 ❯ cat keycloak_to_azure.config.yaml.example
 logfile: keycloak_to_azure.log
+email_domain: example.com
 keycloak_url: https://auth.example.com/auth
 keycloak_realm: acme
 groups:
